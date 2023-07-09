@@ -1,0 +1,13 @@
+#!/bin/sh
+echo "Building an application"
+if ./gradlew build;
+then
+  echo ""
+  echo "Building an application container"
+  docker build --no-cache -t enzulode/user_service_container .
+  echo ""
+else
+  echo ""
+  echo "Application build failed"
+  echo ""
+fi
