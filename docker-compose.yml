@@ -1,0 +1,35 @@
+networks:
+  user_service_db:
+    driver: bridge
+
+services:
+  user_service_db:
+    container_name: user_service_db
+    image: postgres
+    environment:
+      POSTGRES_USER: enzulode
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - user_service_db:/data/postgres
+    ports:
+      - "5332:5432"
+    networks:
+      - user_service_db
+    restart: unless-stopped
+
+  user_service:
+    container_name: user_service
+    depends_on:
+      - user_service_db
+    image: enzulode/user_service_container
+    build: .
+    ports:
+      - "8080:8888"
+    networks:
+      - user_service_db
+    volumes:
+      - ./build/libs/chat-app-backend-0.0.1.jar:/app/app.jar
+
+volumes:
+  user_service_db: {}
