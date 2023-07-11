@@ -1,7 +1,6 @@
-package com.enzulode.app.controller.advice;
+package com.enzulode.app.exception.handler;
 
-import com.enzulode.app.dto.user.UserCreationStatusDTO;
-import com.enzulode.app.dto.user.UserNotFoundDTO;
+import com.enzulode.app.dto.user.UserOperationResultDTO;
 import com.enzulode.app.exception.FailedToCreateUserException;
 import com.enzulode.app.exception.UserNotFoundException;
 import org.springframework.http.HttpHeaders;
@@ -15,34 +14,27 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class UserExceptionHandler extends ResponseEntityExceptionHandler
 {
-	@ExceptionHandler(value = {FailedToCreateUserException.class, UserNotFoundException.class})
-	protected ResponseEntity<Object> handleUserCreationConflict(RuntimeException ex, WebRequest request)
+	@ExceptionHandler(value = {FailedToCreateUserException.class})
+	protected ResponseEntity<Object> handleUserCreationConflict(RuntimeException ex, WebRequest req)
 	{
-		if (ex.getClass().equals(UserNotFoundException.class))
-			return handleExceptionInternal(
-					ex,
-					new UserNotFoundDTO("Failed to retrieve a user"),
-					new HttpHeaders(),
-					HttpStatus.CONFLICT,
-					request
-			);
-
-		var responseMessage = "Failed to create new user";
-		if (ex.getClass().equals(FailedToCreateUserException.class))
-			return handleExceptionInternal(
-					ex,
-					new UserCreationStatusDTO(false, responseMessage),
-					new HttpHeaders(),
-					HttpStatus.CONFLICT,
-					request
-			);
-
 		return handleExceptionInternal(
-					ex,
-					"Unexpected error",
-					new HttpHeaders(),
-					HttpStatus.CONFLICT,
-					request
+				ex,
+				new UserOperationResultDTO("Failed to create a new user"),
+				new HttpHeaders(),
+				HttpStatus.CONFLICT,
+				req
+		);
+	}
+
+	@ExceptionHandler(value = {UserNotFoundException.class})
+	protected ResponseEntity<Object> handleUserRetrievingConflict(RuntimeException ex, WebRequest req)
+	{
+		return handleExceptionInternal(
+				ex,
+				new UserOperationResultDTO("Failed to retrieve a user"),
+				new HttpHeaders(),
+				HttpStatus.CONFLICT,
+				req
 		);
 	}
 }
